@@ -7,7 +7,6 @@ MQTT_IP_ADDR = "localhost"
 MQTT_PORT = 1883
 MQTT_ADDR = "{}:{}".format(MQTT_IP_ADDR, str(MQTT_PORT))
 
-
 def verbalise_hour(i):
 	if i == 0:
 		return "minuit"
@@ -36,30 +35,21 @@ def verbalise_minute(i):
 	else:
 		return "{0}".format(str(i)) 
 
-
 def intent_received(hermes, intent_message):
+	intent_name = intent_message.intent.intent_name
 
-	print()
-	print(intent_message.intent.intent_name)
-	print ()
+	if ':' in intent_name:
+		intent_name = intent_name.split(":")[1]
 
-	if intent_message.intent.intent_name == 'jierka:askTime':
-
+	if intent_name == 'askTime':
 		sentence = 'Il est '
 		print(intent_message.intent.intent_name)
-
 		now = datetime.now(timezone('Europe/Paris'))
-
 		sentence += verbalise_hour(now.hour) + " " + verbalise_minute(now.minute)
 		print(sentence)
-
-		# hermes.publish_continue_session(intent_message.session_id, sentence, ["Joseph:greetings"])
 		hermes.publish_end_session(intent_message.session_id, sentence)
-
-	elif intent_message.intent.intent_name == 'jierka:greetings':
-
+	elif intent_name == 'greetings':
 		hermes.publish_end_session(intent_message.session_id, "De rien!")
-
 
 with Hermes(MQTT_ADDR) as h:
 	h.subscribe_intents(intent_received).start()
